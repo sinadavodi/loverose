@@ -94,149 +94,232 @@ function initScene() {
     window.addEventListener('resize', onWindowResize);
 }
 
-// ایجاد گل رز زیبا
+// ایجاد گل رز زیبا و واقعی
 function createRose() {
-    console.log('ساخت گل رز زیبا...');
+    console.log('🌸 ساخت گل رز زیبا...');
     
-    // ساقه اصلی
-    const stemGeometry = new THREE.CylinderGeometry(0.05, 0.07, 4, 8);
+    // حذف گل قبلی اگر وجود دارد
+    scene.children.slice().forEach(child => {
+        if (child.type === 'Mesh') {
+            scene.remove(child);
+        }
+    });
+    
+    // ساقه اصلی (بلندتر و ظریف‌تر)
+    const stemGeometry = new THREE.CylinderGeometry(0.04, 0.06, 5, 12);
     const stemMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x2e7d32,
-        roughness: 0.8,
-        metalness: 0.2
+        color: 0x228B22,
+        roughness: 0.7,
+        metalness: 0.1
     });
     const stem = new THREE.Mesh(stemGeometry, stemMaterial);
-    stem.position.y = -2;
+    stem.position.y = -2.5;
     stem.castShadow = true;
     scene.add(stem);
     
-    // برگ‌ها
-    const leafGeometry = new THREE.PlaneGeometry(1, 0.5);
+    // برگ‌های براق
+    const leafGeometry = new THREE.PlaneGeometry(1.5, 0.7);
     const leafMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x388e3c,
-        side: THREE.DoubleSide
+        color: 0x32CD32,
+        side: THREE.DoubleSide,
+        roughness: 0.3,
+        metalness: 0.2
     });
     
-    for (let i = 0; i < 4; i++) {
+    const leaves = [];
+    for (let i = 0; i < 6; i++) {
         const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+        const angle = (i / 6) * Math.PI * 2;
+        const radius = 0.4;
+        
         leaf.position.set(
-            Math.sin(i * Math.PI / 2) * 0.3,
-            -1 + i * 0.5,
-            Math.cos(i * Math.PI / 2) * 0.3
+            Math.cos(angle) * radius,
+            -1.5 + (i % 3) * 0.8,
+            Math.sin(angle) * radius
         );
-        leaf.rotation.x = Math.PI / 4;
-        leaf.rotation.z = i * Math.PI / 2;
-        leaf.scale.set(0.5, 0.5, 1);
+        
+        leaf.rotation.x = Math.PI / 3;
+        leaf.rotation.z = angle;
+        leaf.scale.set(0.6, 0.6, 1);
+        leaf.castShadow = true;
+        
         scene.add(leaf);
+        leaves.push(leaf);
     }
     
-    // مرکز گل (کلاله)
-    const centerGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+    // مرکز گل (کلاله) با جزئیات بیشتر
+    const centerGeometry = new THREE.SphereGeometry(0.25, 32, 32);
     const centerMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0xffcc00,
+        color: 0xFFD700,
         emissive: 0x996600,
-        emissiveIntensity: 0.2
+        emissiveIntensity: 0.3,
+        roughness: 0.2,
+        metalness: 0.5
     });
     const center = new THREE.Mesh(centerGeometry, centerMaterial);
-    center.position.y = 0.5;
+    center.position.y = 0.8;
     center.castShadow = true;
     scene.add(center);
     
-    // گلبرگ‌ها (لایه داخلی)
-    for (let i = 0; i < 8; i++) {
-        const angle = (i / 8) * Math.PI * 2;
-        const radius = 0.5;
+    // گلبرگ‌های داخلی (قلب‌یشکل و ظریف)
+    const petalCount = 12;
+    for (let i = 0; i < petalCount; i++) {
+        const angle = (i / petalCount) * Math.PI * 2;
+        const radius = 0.7;
         
-        // گلبرگ قلب‌یشکل
-        const petalShape = new THREE.Shape();
-        petalShape.moveTo(0, 0);
-        petalShape.quadraticCurveTo(0.5, 0.2, 0.5, 1);
-        petalShape.quadraticCurveTo(0.25, 1.5, 0, 1);
-        petalShape.quadraticCurveTo(-0.25, 1.5, -0.5, 1);
-        petalShape.quadraticCurveTo(-0.5, 0.2, 0, 0);
+        // ایجاد شکل قلب برای گلبرگ
+        const heartShape = new THREE.Shape();
+        heartShape.moveTo(0, 0);
+        heartShape.bezierCurveTo(0.5, 0.5, 0.8, 0.8, 0, 1.5);
+        heartShape.bezierCurveTo(-0.8, 0.8, -0.5, 0.5, 0, 0);
         
         const extrudeSettings = {
-            depth: 0.05,
+            depth: 0.08,
             bevelEnabled: true,
-            bevelSegments: 2,
-            steps: 1,
-            bevelSize: 0.02,
-            bevelThickness: 0.02
+            bevelSegments: 3,
+            steps: 2,
+            bevelSize: 0.05,
+            bevelThickness: 0.05
         };
         
-        const petalGeometry = new THREE.ExtrudeGeometry(petalShape, extrudeSettings);
+        const petalGeometry = new THREE.ExtrudeGeometry(heartShape, extrudeSettings);
+        
+        // رنگ‌های صورتی و قرمز برای گلبرگ‌ها
+        const colors = [0xFF69B4, 0xFF1493, 0xFF0066, 0xFF3366];
         const petalMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0xff3366,
-            roughness: 0.3,
+            color: colors[i % colors.length],
+            roughness: 0.2,
             metalness: 0.1,
             side: THREE.DoubleSide
         });
         
         const petal = new THREE.Mesh(petalGeometry, petalMaterial);
-        petal.position.set(
-            Math.cos(angle) * radius * 0.8,
-            0.5 + Math.sin(angle) * 0.1,
-            Math.sin(angle) * radius * 0.8
-        );
-        petal.rotation.y = angle;
-        petal.rotation.x = Math.PI / 8;
-        petal.scale.set(0.4, 0.4, 0.4);
-        petal.castShadow = true;
         
+        // موقعیت گلبرگ‌ها به صورت مارپیچ
+        const spiralOffset = i * 0.3;
+        petal.position.set(
+            Math.cos(angle + spiralOffset) * radius * 0.8,
+            0.5 + Math.sin(angle) * 0.2,
+            Math.sin(angle + spiralOffset) * radius * 0.8
+        );
+        
+        // چرخش طبیعی گلبرگ‌ها
+        petal.rotation.y = angle + spiralOffset;
+        petal.rotation.x = Math.PI / 4 + Math.sin(angle) * 0.2;
+        
+        // اندازه‌های مختلف برای طبیعی‌تر شدن
+        const scale = 0.3 + Math.sin(i) * 0.05;
+        petal.scale.set(scale, scale, scale);
+        
+        petal.castShadow = true;
         scene.add(petal);
     }
     
-    // گلبرگ‌های بیرونی (بزرگتر)
-    for (let i = 0; i < 6; i++) {
-        const angle = (i / 6) * Math.PI * 2;
-        const radius = 0.8;
+    // گلبرگ‌های بیرونی (بزرگ و باز)
+    const outerPetalCount = 8;
+    for (let i = 0; i < outerPetalCount; i++) {
+        const angle = (i / outerPetalCount) * Math.PI * 2;
+        const radius = 1.2;
         
-        const petalGeometry = new THREE.ConeGeometry(0.6, 1.2, 16);
-        const petalMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0xff6699,
-            roughness: 0.4,
+        // گلبرگ‌های بیرونی کشیده‌تر
+        const outerPetalGeometry = new THREE.ConeGeometry(0.8, 1.5, 24);
+        
+        // رنگ‌های روشن‌تر برای گلبرگ‌های بیرونی
+        const outerPetalMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xFFB6C1, // صورتی بسیار روشن
+            roughness: 0.3,
             metalness: 0.05,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.9
         });
         
-        const petal = new THREE.Mesh(petalGeometry, petalMaterial);
-        petal.position.set(
+        const outerPetal = new THREE.Mesh(outerPetalGeometry, outerPetalMaterial);
+        
+        outerPetal.position.set(
             Math.cos(angle) * radius,
-            0.3,
+            0.2,
             Math.sin(angle) * radius
         );
-        petal.rotation.y = angle;
-        petal.rotation.x = Math.PI / 2;
-        petal.scale.set(0.5, 0.8, 0.3);
-        petal.castShadow = true;
         
-        scene.add(petal);
+        // گلبرگ‌های بیرونی کمی افتاده
+        outerPetal.rotation.y = angle;
+        outerPetal.rotation.x = Math.PI / 2.2;
+        
+        // اندازه‌های مختلف
+        const scale = 0.6 + Math.cos(i * 0.5) * 0.1;
+        outerPetal.scale.set(scale, 0.8, scale * 0.7);
+        
+        outerPetal.castShadow = true;
+        scene.add(outerPetal);
     }
     
-    // نقطه‌های نورانی اطراف گل (افکت جادویی)
-    for (let i = 0; i < 20; i++) {
-        const starGeometry = new THREE.SphereGeometry(0.03, 8, 8);
-        const starMaterial = new THREE.MeshBasicMaterial({ 
-            color: 0xffffff,
+    // نورهای رنگی اطراف گل (افکت جادویی)
+    const lightCount = 15;
+    for (let i = 0; i < lightCount; i++) {
+        const lightGeometry = new THREE.SphereGeometry(0.05 + Math.random() * 0.03, 8, 8);
+        const lightMaterial = new THREE.MeshBasicMaterial({ 
+            color: new THREE.Color().setHSL(Math.random(), 0.8, 0.7),
             transparent: true,
-            opacity: 0.7
+            opacity: 0.8
         });
         
-        const star = new THREE.Mesh(starGeometry, starMaterial);
-        const radius = 2 + Math.random() * 1;
+        const lightParticle = new THREE.Mesh(lightGeometry, lightMaterial);
+        
+        const radius = 2.5 + Math.random() * 1;
         const angle = Math.random() * Math.PI * 2;
         const height = -1 + Math.random() * 3;
         
-        star.position.set(
+        lightParticle.position.set(
             Math.cos(angle) * radius,
             height,
             Math.sin(angle) * radius
         );
         
-        scene.add(star);
+        // ذخیره برای انیمیشن
+        lightParticle.userData = {
+            speed: 0.5 + Math.random() * 0.5,
+            angle: angle,
+            radius: radius,
+            height: height,
+            timeOffset: Math.random() * Math.PI * 2
+        };
+        
+        scene.add(lightParticle);
     }
     
-    console.log('گل رز ساخته شد!');
+    // شبنم‌های براق روی گلبرگ‌ها
+    const dewCount = 20;
+    for (let i = 0; i < dewCount; i++) {
+        const dewGeometry = new THREE.SphereGeometry(0.03 + Math.random() * 0.02, 8, 8);
+        const dewMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x87CEEB,
+            roughness: 0.1,
+            metalness: 0.9,
+            transparent: true,
+            opacity: 0.7
+        });
+        
+        const dew = new THREE.Mesh(dewGeometry, dewMaterial);
+        
+        // قرار دادن شبنم‌ها روی گلبرگ‌ها
+        const radius = 0.5 + Math.random() * 0.8;
+        const angle = Math.random() * Math.PI * 2;
+        const height = 0.2 + Math.random() * 0.6;
+        
+        dew.position.set(
+            Math.cos(angle) * radius,
+            height,
+            Math.sin(angle) * radius
+        );
+        
+        scene.add(dew);
+    }
+    
+    console.log('🌸 گل رز زیبا ساخته شد!');
+    
+    // برگرداندن object برای انیمیشن
+    return { stem, leaves, center };
 }
 
 // انیمیشن
