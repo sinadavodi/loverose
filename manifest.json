@@ -1,15 +1,8 @@
 {
   "name": "RoseLove",
-  "short_name": "🌹Rose",
-  "start_url": ".",
+  "short_name": "RoseLove",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ff4d6d",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/833/833472.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    }
-  ]
+  "background_color": "#000000",
+  "theme_color": "#ff3366"
 }
