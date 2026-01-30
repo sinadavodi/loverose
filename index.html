@@ -1,34 +1,122 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOVE ROSE - یک رز برای عشق</title>
-    <link rel="stylesheet" href="css/style.css">
-    <!-- Three.js از CDN - حذف import ناسازگار -->
+    <meta name="theme-color" content="#1a1a2e">
+    <title>رز عاشقانه - کادوی دیجیتال</title>
+    
+    <!-- Three.js و کنترل‌ها -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- GSAP برای انیمیشن -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- آیکون‌ها -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- استایل‌های پروژه -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Manifest برای PWA -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
 </head>
-<body>
-    <div class="loading" id="loading">
-        در حال بیدار شدن گل...
+<body class="night-mode">
+    <!-- حالت‌های روز/شب -->
+    <div class="theme-toggle">
+        <button id="themeBtn" title="تغییر حالت">
+            <i class="fas fa-moon"></i>
+        </button>
     </div>
-
-    <div class="container" id="container" style="display: none;">
+    
+    <!-- کنترل موسیقی -->
+    <div class="music-control">
+        <button id="musicBtn" title="موسیقی">
+            <i class="fas fa-music"></i>
+        </button>
+        <audio id="bgMusic" loop>
+            <source src="assets/music/romantic.mp3" type="audio/mpeg">
+            مرورگر شما از پخش صدا پشتیبانی نمی‌کند.
+        </audio>
+    </div>
+    
+    <!-- صفحه لودینگ -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader">
+            <div class="petal"></div>
+            <div class="petal"></div>
+            <div class="petal"></div>
+            <div class="petal"></div>
+            <div class="petal"></div>
+        </div>
+        <p class="loading-text">رز عشق در حال شکفتن است...</p>
+    </div>
+    
+    <!-- کانتینر اصلی -->
+    <div class="main-container" id="mainContainer" style="display: none;">
+        <!-- کانواس Three.js -->
         <canvas id="roseCanvas"></canvas>
-        <div class="controls">
-            <button id="addHeart">➕ افزودن قلب</button>
-            <button id="changeColor">🎨 تغییر رنگ</button>
-            <button id="autoRotate">🔄 چرخش خودکار</button>
+        
+        <!-- پنل اطلاعات گل -->
+        <div class="rose-info">
+            <div class="health-bar">
+                <div class="health-fill" id="healthFill"></div>
+                <span class="health-text" id="healthText">سلامت گل: 100%</span>
+            </div>
+            <div class="last-visit" id="lastVisit">
+                آخرین سرزدن: همین الان
+            </div>
+            <div class="streak-counter">
+                <i class="fas fa-fire"></i>
+                <span id="streakCount">1 روز متوالی</span>
+            </div>
         </div>
-        <div class="message">
-            <h1>برای عشق واقعی ❤️</h1>
-            <p id="loveMessage">این رز دیجیتال نماد عشق بی‌پایان من به توست</p>
+        
+        <!-- نمایش جمله روز -->
+        <div class="sentence-container">
+            <div class="sentence-card" id="sentenceCard">
+                <p class="sentence-text" id="sentenceText">
+                    "اگر مرا نداشتی، می‌خواستی چه کار کنی، شیطون؟"
+                </p>
+                <div class="sentence-meta">
+                    <span class="sentence-date" id="sentenceDate">روز ۱ از ۱۸۰</span>
+                    <button class="next-btn" id="nextSentence">
+                        <i class="fas fa-forward"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- دکمه نوتیفیکیشن -->
+        <button class="notification-btn" id="notificationBtn" title="تنظیم یادآوری">
+            <i class="fas fa-bell"></i>
+        </button>
+        
+        <!-- پنل نوتیفیکیشن -->
+        <div class="notification-panel" id="notificationPanel">
+            <h3><i class="fas fa-bell"></i> یادآوری روزانه</h3>
+            <p>هر روز برای حفظ سلامت گل سر بزنید</p>
+            <div class="time-picker">
+                <label>ساعت یادآوری:</label>
+                <input type="time" id="reminderTime" value="20:00">
+            </div>
+            <button id="saveNotification" class="save-btn">ذخیره تنظیمات</button>
+            <button id="testNotification" class="test-btn">تست نوتیفیکیشن</button>
         </div>
     </div>
-
-    <!-- اسکریپت اصلی - اصلاح شده -->
+    
+    <!-- اسکریپت‌های پروژه -->
+    <script src="js/sentences.js"></script>
+    <script src="js/notification.js"></script>
     <script src="js/script.js"></script>
+    
+    <!-- سرویس ورکر -->
+    <script src="sw.js"></script>
 </body>
 </html>
