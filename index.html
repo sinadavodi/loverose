@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>🌹 RoseLove</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff4d6d">
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Three.js -->
+  <script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
+</head>
+<body>
+
+<div class="app">
+  <h1>🌹 RoseLove</h1>
+
+  <canvas id="roseCanvas"></canvas>
+
+  <p id="quote"></p>
+  <p id="timer"></p>
+  <p id="miss"></p>
+
+  <input id="reply" placeholder="جوابت به گل…" />
+  <button onclick="replyToRose()">بفرست 💌</button>
+
+  <p id="reaction"></p>
+</div>
+
+<script src="rose.js"></script>
+<script src="script.js"></script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
+</script>
+
+</body>
+</html>
