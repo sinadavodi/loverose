@@ -10,28 +10,39 @@ let visitStreak = 1;
 let isMusicPlaying = false;
 let isNightMode = true;
 
-// مقداردهی اولیه
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🌹 رز عاشقانه در حال بارگذاری...');
+// ========== IMPORTANT: حذف importها ==========
+// این خط رو کامنت یا حذف کن:
+// import * as THREE from 'three';
+
+// و از این به بعد از THREE مستقیماً استفاده کن
+// چون از CDN لود شده
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('شروع برنامه...');
     
-    try {
-        // راه‌اندازی صحنه Three.js
-        initScene();
-        
-        // شروع انیمیشن
-        animate();
-        
-        // راه‌اندازی UI
-        setupUI();
-        
-        // پنهان کردن صفحه لودینگ
-        setTimeout(() => {
-            document.getElementById('loadingScreen').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('loadingScreen').style.display = 'none';
-                document.getElementById('mainContainer').style.display = 'block';
-                gsap.to('#mainContainer', { opacity: 1, duration: 1 });
-                
+    // بررسی کن Three.js لود شده
+    if (typeof THREE === 'undefined') {
+        alert('Three.js لود نشد! صفحه رو رفرش کن');
+        return;
+    }
+    
+    // حالا می‌تونی از THREE استفاده کنی
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    
+    // بقیه کدهای تو...
+    
+    // اضافه کردن به صفحه
+    document.getElementById('app').appendChild(renderer.domElement);
+    
+    // انیمیشن
+    function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+    }
+    animate();
+});
                 // نمایش جمله روز
                 showDailySentence();
             }, 500);
