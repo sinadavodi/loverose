@@ -6,13 +6,9 @@
     <meta name="theme-color" content="#1a1a2e">
     <title>رز عاشقانه - کادوی دیجیتال</title>
     
-    <!-- Three.js -->
+    <!-- Three.js و کنترل‌ها -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- OrbitControls -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <!-- GLTFLoader -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    <!-- GSAP -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     
     <!-- آیکون‌ها -->
@@ -20,6 +16,16 @@
     
     <!-- استایل‌های پروژه -->
     <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Manifest برای PWA -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
 </head>
 <body class="night-mode">
     <!-- حالت‌های روز/شب -->
@@ -34,9 +40,9 @@
         <button id="musicBtn" title="موسیقی">
             <i class="fas fa-music"></i>
         </button>
-        <!-- موسیقی از یک منبع آنلاین -->
         <audio id="bgMusic" loop>
-            <source src="https://dls.musics-fa.com/song/alibz/dlswm/Arshiyas%20-%20Hamin%20Bood%20(320).mp3" type="audio/mpeg">
+            <source src="assets/music/Arshiyas - Hamin Bood.mp3" type="audio/mpeg">
+            مرورگر شما از پخش صدا پشتیبانی نمی‌کند.
         </audio>
     </div>
     
@@ -109,6 +115,8 @@
     <script src="js/sentences.js"></script>
     <script src="js/notification.js"></script>
     <script src="js/script.js"></script>
+    
+    <!-- سرویس ورکر -->
+    <script src="sw.js"></script>
 </body>
 </html>
-
