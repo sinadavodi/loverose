@@ -7,31 +7,18 @@
 
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/night.css" id="nightStyle" disabled>
-<link rel="manifest" href="manifest.json">
 
 </head>
 <body>
 
 <div id="overlay">
   <h1>🌹 RoseLove</h1>
-  <p id="moodText"></p>
+  <p id="moodText">در حال بیدار شدن گل…</p>
   <span id="days"></span>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/three@0.158/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.158/examples/js/loaders/GLTFLoader.js"></script>
-
-<script type="module" src="js/state.js"></script>
-<script type="module" src="js/personality.js"></script>
-<script type="module" src="js/scene.js"></script>
-<script type="module" src="js/music.js"></script>
-<script type="module" src="js/ui.js"></script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
-}
-</script>
+<!-- فقط یک اسکریپت -->
+<script type="module" src="js/main.js"></script>
 
 </body>
 </html>
