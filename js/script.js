@@ -516,15 +516,32 @@ function updateLastVisitDisplay() {
 
 // نمایش جمله روز
 function showDailySentence() {
-    // استفاده از manager جملات
     let sentenceData;
+    
     if (typeof sentenceManager !== 'undefined') {
         sentenceData = sentenceManager.getDailySentence();
     } else {
-        // fallback
+        // fallback - شروع از روز 1
+        const startDate = localStorage.getItem('rose_start_date');
+        if (!startDate) {
+            localStorage.setItem('rose_start_date', new Date().toISOString());
+        }
+        
+        const start = new Date(startDate || new Date());
+        const today = new Date();
+        const diffTime = Math.abs(today - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        const sentences = [
+            "ببین، من یه مشکلی دارم: نمیتونم بیشتر از ۵ دقیقه بهت فکر نکنم! دکتر بگو چیکار کنم؟ 💊",
+            "عشقم، امروز صبح که بیدار شدم اولین چیزی که خواستم ببینم چشای تو بود... ولی گوشیمو دیدم! 😂",
+            "من یه جوری عاشقتم که حتی موقع دعوامونم دوستت دارم! (البته کمتر! شوخی کردم 😘)",
+            // بقیه جملات...
+        ];
+        
         sentenceData = {
-            text: "اگر مرا نداشتی، می‌خواستی چه کار کنی، شیطون؟",
-            day: 1,
+            text: sentences[diffDays % sentences.length] || sentences[0],
+            day: diffDays + 1, // همیشه از 1 شروع کن
             totalDays: 180
         };
     }
@@ -543,8 +560,13 @@ function showDailySentence() {
     }
     
     if (sentenceDate) {
-        sentenceDate.textContent = `روز ${sentenceData.day} از ${sentenceData.totalDays}`;
+        // نمایش درست روز: همیشه از 1 شروع کن
+        const displayDay = Math.max(1, sentenceData.day);
+        sentenceDate.textContent = `روز ${displayDay} از ${sentenceData.totalDays}`;
     }
+    
+    // ذخیره روز فعلی
+    localStorage.setItem('current_rose_day', sentenceData.day);
 }
 
 // راه‌اندازی UI
@@ -555,28 +577,62 @@ function setupUI() {
         themeBtn.addEventListener('click', toggleTheme);
     }
     
-    // کنترل موسیقی
-    const musicBtn = document.getElementById('musicBtn');
-    const bgMusic = document.getElementById('bgMusic');
+ // کنترل موسیقی - نسخه اصلاح شده
+const musicBtn = document.getElementById('musicBtn');
+const bgMusic = document.getElementById('bgMusic');
+
+if (musicBtn && bgMusic) {
+    // تنظیم حجم موسیقی
+    bgMusic.volume = 0.5;
     
-    if (musicBtn && bgMusic) {
-        musicBtn.addEventListener('click', () => {
-            if (isMusicPlaying) {
-                bgMusic.pause();
-                musicBtn.innerHTML = '<i class="fas fa-music"></i>';
-                musicBtn.classList.remove('playing');
-            } else {
-                // برای پخش موسیقی نیاز به تعامل کاربر داریم
-                bgMusic.play().catch(e => {
-                    console.log('برای پخش موسیقی روی دکمه کلیک کنید');
-                    // با یک کلیک دیگر کار می‌کند
+    // برای پخش خودکار بعد از تعامل کاربر
+    let userInteracted = false;
+    
+    document.addEventListener('click', () => {
+        if (!userInteracted) {
+            userInteracted = true;
+            console.log('کاربر با صفحه تعامل کرد، موسیقی آماده پخش است');
+        }
+    });
+    
+    musicBtn.addEventListener('click', () => {
+        if (!userInteracted) {
+            showToast('لطفاً اول یک بار روی صفحه کلیک کنید', 'info');
+            return;
+        }
+        
+        if (isMusicPlaying) {
+            bgMusic.pause();
+            musicBtn.innerHTML = '<i class="fas fa-music"></i>';
+            musicBtn.classList.remove('playing');
+            musicBtn.title = 'پخش موسیقی';
+        } else {
+            // پخش موسیقی با هندلینگ خطا
+            const playPromise = bgMusic.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    musicBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    musicBtn.classList.add('playing');
+                    musicBtn.title = 'توقف موسیقی';
+                    console.log('موسیقی پخش شد');
+                }).catch(error => {
+                    console.log('خطا در پخش موسیقی:', error);
+                    showToast('برای پخش موسیقی، روی صفحه کلیک کنید', 'info');
+                    musicBtn.innerHTML = '<i class="fas fa-music"></i>';
+                    isMusicPlaying = false;
                 });
-                musicBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                musicBtn.classList.add('playing');
             }
-            isMusicPlaying = !isMusicPlaying;
-        });
-    }
+        }
+        isMusicPlaying = !isMusicPlaying;
+    });
+    
+    // وقتی موسیقی تمام شد، دوباره شروع کن
+    bgMusic.addEventListener('ended', () => {
+        bgMusic.currentTime = 0;
+        bgMusic.play();
+    });
+}
     
     // جمله بعدی
     const nextSentenceBtn = document.getElementById('nextSentence');
