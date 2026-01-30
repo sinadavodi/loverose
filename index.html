@@ -3,876 +3,697 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💖 رز عاشقانه - کادوی دیجیتال</title>
-    
-    <!-- Three.js از CDN مطمئن -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-    
-    <!-- Font Awesome -->
+    <title>رز عاشقانه</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- GSAP برای انیمیشن -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    
     <style>
-        /* Reset */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --day-bg: linear-gradient(135deg, #ffd6e7 0%, #ffebf3 100%);
+            --day-text: #8a2be2;
+            --day-card: rgba(255, 255, 255, 0.95);
+            --night-bg: linear-gradient(135deg, #1a0033 0%, #330066 100%);
+            --night-text: #ff99ff;
+            --night-card: rgba(40, 0, 80, 0.9);
+            --transition: all 0.5s ease;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0a0a;
-            color: white;
-            overflow: hidden;
-            height: 100vh;
-        }
-
-        /* کانواس Three.js */
-        #canvas3d {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-
-        /* محتوای UI */
-        .ui-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 100;
-            pointer-events: none;
-        }
-
-        /* هدر */
-        .header {
+            background: var(--day-bg);
+            color: var(--day-text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition);
             padding: 20px;
+            overflow-x: hidden;
+        }
+
+        body.night-mode {
+            background: var(--night-bg);
+            color: var(--night-text);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--day-card);
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(138, 43, 226, 0.2);
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+            padding: 25px;
+            border: 2px solid rgba(255, 105, 180, 0.3);
+        }
+
+        .night-mode .container {
+            background: var(--night-card);
+            box-shadow: 0 20px 50px rgba(255, 105, 255, 0.2);
+            border-color: rgba(255, 153, 255, 0.4);
+        }
+
+        .header {
             text-align: center;
-            pointer-events: auto;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed rgba(255, 105, 180, 0.4);
         }
 
         .header h1 {
-            color: #ff3366;
-            font-size: 2rem;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #ff1493, #8a2be2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(255, 20, 147, 0.3);
         }
 
-        /* پنل سلامت */
-        .health-panel {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 15px 20px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            pointer-events: auto;
-            min-width: 200px;
+        .night-mode .header h1 {
+            background: linear-gradient(45deg, #ff99ff, #cc66ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .health-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .health-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00b894, #55efc4);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-            width: 100%;
-        }
-
-        .health-text {
-            font-size: 0.9rem;
-            color: #aaa;
-            text-align: center;
-        }
-
-        /* پنل جملات */
-        .sentence-panel {
-            position: absolute;
-            bottom: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 600px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 25px 30px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-            pointer-events: auto;
-        }
-
-        .sentence-text {
-            font-size: 1.4rem;
-            line-height: 1.8;
-            margin-bottom: 15px;
-            min-height: 60px;
-            font-weight: 500;
-        }
-
-        .sentence-date {
-            font-size: 0.9rem;
-            color: #ff3366;
-            margin-top: 10px;
-        }
-
-        /* کنترل‌ها */
-        .controls {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
+        .stats {
             display: flex;
+            justify-content: space-around;
+            margin: 25px 0;
+            flex-wrap: wrap;
             gap: 15px;
-            pointer-events: auto;
         }
 
-        .control-btn {
-            background: rgba(255, 51, 102, 0.8);
-            border: none;
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            cursor: pointer;
+        .stat-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            flex: 1;
+            min-width: 180px;
+            box-shadow: 0 8px 20px rgba(138, 43, 226, 0.15);
+            transition: var(--transition);
+            border: 1px solid rgba(255, 105, 180, 0.2);
+        }
+
+        .night-mode .stat-box {
+            background: rgba(60, 0, 120, 0.8);
+            box-shadow: 0 8px 20px rgba(255, 153, 255, 0.15);
+            border-color: rgba(255, 153, 255, 0.3);
+        }
+
+        .stat-box h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #ff1493;
+        }
+
+        .night-mode .stat-box h3 {
+            color: #ff99ff;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #8a2be2;
+        }
+
+        .night-mode .stat-value {
+            color: #cc66ff;
+        }
+
+        .rose-container {
+            height: 320px;
+            width: 100%;
+            position: relative;
+            margin: 25px 0;
+            border-radius: 20px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.05);
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
         }
 
-        .control-btn:hover {
-            transform: scale(1.1);
-            background: rgba(255, 51, 102, 1);
+        .night-mode .rose-container {
+            background: rgba(0, 0, 0, 0.2);
         }
 
-        .control-btn.playing {
-            background: rgba(108, 92, 231, 0.8);
+        .rose-container:hover {
+            transform: scale(1.01);
         }
 
-        /* صفحه لودینگ */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .rose-container iframe {
             width: 100%;
             height: 100%;
-            background: #0a0a0a;
+            border: none;
+            border-radius: 20px;
+        }
+
+        .click-info {
+            position: absolute;
+            bottom: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #ff1493;
+            padding: 8px 15px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .night-mode .click-info {
+            background: rgba(40, 0, 80, 0.9);
+            color: #ff99ff;
+        }
+
+        .quote-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.1);
+            border: 1px solid rgba(255, 105, 180, 0.3);
+            min-height: 120px;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            transition: var(--transition);
         }
 
-        .loading-text {
-            font-size: 1.2rem;
-            color: #ff3366;
+        .night-mode .quote-box {
+            background: rgba(50, 0, 100, 0.9);
+            border-color: rgba(255, 153, 255, 0.4);
+        }
+
+        .quote {
+            font-size: 1.4rem;
+            line-height: 1.8;
+            color: #8a2be2;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .night-mode .quote {
+            color: #ffccff;
+        }
+
+        .quote-date {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #ff1493;
+            opacity: 0.8;
+        }
+
+        .night-mode .quote-date {
+            color: #ff99ff;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(45deg, #ff1493, #8a2be2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(255, 20, 147, 0.4);
+        }
+
+        .night-mode .control-btn {
+            background: linear-gradient(45deg, #ff66cc, #9933ff);
+            box-shadow: 0 8px 20px rgba(255, 102, 204, 0.4);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(255, 20, 147, 0.6);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .music-btn.active {
+            background: linear-gradient(45deg, #00cc66, #00b359);
+            box-shadow: 0 8px 20px rgba(0, 204, 102, 0.4);
+        }
+
+        .night-mode .music-btn.active {
+            background: linear-gradient(45deg, #33ff99, #00cc66);
+        }
+
+        .visit-btn {
+            background: linear-gradient(45deg, #ff9900, #ff6600);
+            box-shadow: 0 8px 20px rgba(255, 153, 0, 0.4);
+        }
+
+        .night-mode .visit-btn {
+            background: linear-gradient(45deg, #ffcc00, #ff9900);
+        }
+
+        .alert-box {
+            background: rgba(255, 230, 240, 0.95);
+            border-right: 5px solid #ff1493;
+            padding: 15px 20px;
+            border-radius: 15px;
             margin-top: 20px;
+            text-align: center;
+            color: #d40078;
+            font-weight: 500;
             animation: pulse 2s infinite;
+            display: none;
+        }
+
+        .night-mode .alert-box {
+            background: rgba(80, 0, 60, 0.9);
+            color: #ff99ff;
+            border-right-color: #ff66cc;
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
+            0% { opacity: 0.9; }
             50% { opacity: 1; }
+            100% { opacity: 0.9; }
         }
 
-        /* افکت قلب */
-        .heart-effect {
-            position: fixed;
-            font-size: 24px;
-            pointer-events: none;
-            z-index: 200;
-            animation: floatUp 2s ease-out forwards;
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(255, 105, 180, 0.4);
+            font-size: 0.9rem;
+            color: #8a2be2;
+            opacity: 0.8;
         }
 
-        @keyframes floatUp {
-            0% {
-                transform: translate(-50%, 0) scale(1);
-                opacity: 1;
-            }
-            100% {
-                transform: translate(-50%, -100px) scale(0.5);
-                opacity: 0;
-            }
+        .night-mode .footer {
+            color: #cc99ff;
         }
 
-        /* ریسپانسیو */
         @media (max-width: 768px) {
-            .sentence-panel {
-                bottom: 100px;
-                width: 95%;
+            .container {
                 padding: 20px;
+                border-radius: 25px;
             }
-            
-            .sentence-text {
-                font-size: 1.1rem;
+            .header h1 {
+                font-size: 2rem;
             }
-            
-            .health-panel {
-                top: 10px;
-                left: 10px;
-                right: 10px;
-                min-width: auto;
+            .stat-box {
+                min-width: 150px;
+                padding: 15px;
             }
-            
-            .controls {
-                bottom: 20px;
+            .rose-container {
+                height: 280px;
             }
-            
+            .quote {
+                font-size: 1.2rem;
+            }
             .control-btn {
-                width: 50px;
-                height: 50px;
+                padding: 12px 25px;
                 font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.7rem;
+            }
+            .stat-box {
+                min-width: 100%;
+            }
+            .rose-container {
+                height: 250px;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            .control-btn {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
 </head>
-<body>
-    <!-- صفحه لودینگ -->
-    <div class="loading-screen" id="loadingScreen">
-        <div style="font-size: 3rem; color: #ff3366; margin-bottom: 20px;">🌹</div>
-        <div class="loading-text" id="loadingText">در حال بارگذاری گل رز...</div>
-        <div style="color: #666; font-size: 0.9rem; margin-top: 20px; text-align: center; padding: 0 20px;">
-            اگر گل نمایش داده نشد، صفحه را رفرش کنید
-        </div>
-    </div>
+<body class="day-mode">
 
-    <!-- کانواس Three.js -->
-    <canvas id="canvas3d"></canvas>
-
-    <!-- UI -->
-    <div class="ui-container" id="uiContainer" style="display: none;">
+    <div class="container">
         <div class="header">
             <h1>رز عاشقانه</h1>
+            <p>نشان عشق تو، هر روز تازه‌تر می‌شود 🌹</p>
         </div>
-        
-        <div class="health-panel">
-            <div class="health-bar">
-                <div class="health-fill" id="healthFill"></div>
+
+        <div class="stats">
+            <div class="stat-box">
+                <h3>سلامت گل</h3>
+                <div class="stat-value" id="health">100%</div>
             </div>
-            <div class="health-text">
-                <span id="healthText">سلامت گل: 100%</span> • 
-                <span id="visitInfo">آخرین سرزدن: همین الان</span> • 
-                <span id="dayCounter">روز ۱</span>
+            <div class="stat-box">
+                <h3>آخرین سرزدن</h3>
+                <div class="stat-value" id="lastVisit">همین الان</div>
+            </div>
+            <div class="stat-box">
+                <h3>روز متوالی</h3>
+                <div class="stat-value" id="streak">10 روز</div>
+            </div>
+            <div class="stat-box">
+                <h3>۱۸۰ روز عاشقانه</h3>
+                <div class="stat-value" id="totalDays">۱۸۰ از ۱۵ روز</div>
             </div>
         </div>
-        
-        <div class="sentence-panel">
-            <div class="sentence-text" id="sentenceText">
-                "در حال بارگذاری..."
-            </div>
-            <div class="sentence-date" id="sentenceDate">
-                امروز • روز ۱ از ۱۸۰
+
+        <div class="rose-container" id="roseClick">
+            <iframe id="3d-rose" title="گل رز سه‌بعدی" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share src="https://sketchfab.com/models/rose-6281bf3703584323bb4d8326f1f1b59d/embed?autospin=1&autostart=1&ui_controls=0&ui_infos=0&ui_stop=0"></iframe>
+            <div class="click-info">
+                <i class="fas fa-hand-pointer"></i> برای سر زدن به گل کلیک کن
             </div>
         </div>
-        
+
+        <div class="quote-box">
+            <div class="quote" id="dailyQuote">
+                "عشق تو مانند این گل، همیشه تازه و شکوفاست..."
+            </div>
+            <div class="quote-date" id="quoteDate">
+                جمله امروز - ۱ فروردین
+            </div>
+        </div>
+
+        <div class="alert-box" id="alertBox">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="alertText">هشدار! سطح لوس کردن من داره از حد مجاز می‌گذره!</span>
+            <br>
+            <small>خواهش می‌کنم نگو بس کن! 😊</small>
+        </div>
+
         <div class="controls">
-            <button class="control-btn" id="themeBtn" title="تغییر حالت">
-                <i class="fas fa-moon"></i>
+            <button class="control-btn" id="themeToggle">
+                <i class="fas fa-moon"></i> حالت شب
             </button>
-            <button class="control-btn" id="musicBtn" title="موسیقی">
-                <i class="fas fa-music"></i>
+            <button class="control-btn music-btn" id="musicToggle">
+                <i class="fas fa-music"></i> موسیقی
             </button>
+            <button class="control-btn visit-btn" id="visitBtn">
+                <i class="fas fa-heart"></i> سر بزن به گل
+            </button>
+        </div>
+
+        <div class="footer">
+            <p>ساخته شده با ❤️ برای تو | هر روز یک جمله عاشقانه جدید</p>
         </div>
     </div>
 
-    <!-- موسیقی -->
     <audio id="bgMusic" loop>
-        <source src="https://cdn.pixabay.com/audio/2023/03/27/audio_2d34d8a0a5.mp3" type="audio/mpeg">
+        <source src="https://assets.mixkit.co/music/preview/mixkit-romantic-sunset-687.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- اسکریپت اصلی -->
     <script>
-        // ========== متغیرهای اصلی ==========
-        let scene, camera, renderer, roseModel;
+        // داده‌های اولیه
         let health = 100;
-        let lastVisit = Date.now();
-        let currentDay = 1;
-        let sentences = [];
-        let currentSentenceIndex = 0;
+        let lastVisit = "همین الان";
+        let streak = 10;
+        let totalDays = 180;
         let isMusicPlaying = false;
-        let isNightMode = true;
-        let controls;
+        let isNightMode = false;
+        let lastVisitDate = new Date().toLocaleDateString('fa-IR');
+        let visitCountToday = 0;
 
-        // ========== جملات روزانه ==========
-        const initializeSentences = () => {
-            sentences = [
-                "عشقم، امروز صبح که بیدار شدم اولین چیزی که خواستم ببینم چشای تو بود... ولی گوشیمو دیدم! 😂",
-                "ببین، من یه مشکلی دارم: نمیتونم بیشتر از ۵ دقیقه بهت فکر نکنم! دکتر بگو چیکار کنم؟ 💊",
-                "من یه جوری عاشقتم که حتی موقع دعوامونم دوستت دارم! (البته کمتر! شوخی کردم 😘)",
-                "عزیزم، میدونی چرا همیشه میگم دوستت دارم؟ چون میترسم یهو فراموش کنی و بری!",
-                "نمیخوام بزرگش کنم ولی... تو بهترین اتفاق قرن ۲۱ هستی! بعد از وایفای البته! 😜",
-                "هشدار! سطح لوس‌کردن من داره از حد مجاز میگذره! خواهش میکنم نگو بس کن! ⚠️",
-                "امروز کسی گفت خوشحال به نظر میرسی... گفتم آره، یه فرشته دارم که مدام منو اذیت میکنه! 👼",
-                "به من نگو عاشق! من فقط یه مشتری وفادار هستم که محصولت رو خیلی دوست داره! 💳😄",
-                "عزیزم، اگه یه روز گم شم، فقط کافیه دنبال کسی بگردی که دیوونه‌وار داره به عکس تو زل میزنه! 📸",
-                "من انقدر دوستت دارم که حتی اگه بگی پیتزای آناناس دوست داری، بازم دوستت دارم! 🍍🍕"
-            ];
-        };
+        // موسیقی
+        const bgMusic = document.getElementById('bgMusic');
+        const musicToggle = document.getElementById('musicToggle');
 
-        // ========== گل 3D از Sketchfab ==========
-        const loadRoseModel = () => {
-            return new Promise((resolve, reject) => {
-                const loader = new THREE.GLTFLoader();
-                
-                // مدل گل رز با کیفیت بالا
-                const modelUrl = 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/models/gltf/Rose.glb';
-                
-                loader.load(
-                    modelUrl,
-                    (gltf) => {
-                        roseModel = gltf.scene;
-                        
-                        // تنظیمات مدل
-                        roseModel.scale.set(2, 2, 2);
-                        roseModel.position.set(0, -1, 0);
-                        
-                        // بهبود مواد
-                        roseModel.traverse((child) => {
-                            if (child.isMesh) {
-                                child.castShadow = true;
-                                child.receiveShadow = true;
-                                
-                                // اگر گلبرگ است، رنگش را بهبود بده
-                                if (child.name.toLowerCase().includes('rose') || 
-                                    child.name.toLowerCase().includes('petal') ||
-                                    child.material) {
-                                    
-                                    // مواد جدید با انعکاس و شفافیت
-                                    child.material = new THREE.MeshPhysicalMaterial({
-                                        color: 0xff3366,
-                                        roughness: 0.2,
-                                        metalness: 0.1,
-                                        clearcoat: 1.0,
-                                        clearcoatRoughness: 0.1,
-                                        transparent: true,
-                                        opacity: 0.9
-                                    });
-                                }
-                            }
-                        });
-                        
-                        scene.add(roseModel);
-                        console.log('✅ مدل گل رز بارگذاری شد');
-                        resolve();
-                    },
-                    (progress) => {
-                        // نمایش پیشرفت
-                        const percent = Math.round((progress.loaded / progress.total) * 100);
-                        document.getElementById('loadingText').textContent = 
-                            `بارگذاری گل رز... ${percent}%`;
-                    },
-                    (error) => {
-                        console.error('❌ خطا در بارگذاری مدل:', error);
-                        // اگر مدل لود نشد، گل ساده بساز
-                        createSimpleRose();
-                        resolve();
-                    }
-                );
-            });
-        };
+        // دکمه حالت شب/روز
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
 
-        // ========== گل ساده (فالبک) ==========
-        const createSimpleRose = () => {
-            console.log('ساخت گل رز ساده...');
-            
-            // گروه برای گل
-            const roseGroup = new THREE.Group();
-            
-            // ساقه
-            const stemGeometry = new THREE.CylinderGeometry(0.05, 0.07, 3, 8);
-            const stemMaterial = new THREE.MeshStandardMaterial({ color: 0x228B22 });
-            const stem = new THREE.Mesh(stemGeometry, stemMaterial);
-            stem.position.y = -1.5;
-            roseGroup.add(stem);
-            
-            // گلبرگ‌ها
-            const petalCount = 24;
-            for (let i = 0; i < petalCount; i++) {
-                const angle = (i / petalCount) * Math.PI * 2;
-                const radius = 0.8;
-                
-                // گلبرگ قلبی شکل
-                const shape = new THREE.Shape();
-                shape.moveTo(0, 0);
-                shape.bezierCurveTo(0.5, 0.5, 0.8, 0.8, 0, 1.2);
-                shape.bezierCurveTo(-0.8, 0.8, -0.5, 0.5, 0, 0);
-                
-                const extrudeSettings = {
-                    depth: 0.05,
-                    bevelEnabled: true,
-                    bevelSegments: 2,
-                    steps: 1,
-                    bevelSize: 0.03,
-                    bevelThickness: 0.03
-                };
-                
-                const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
-                
-                // رنگ‌های مختلف برای گلبرگ‌ها
-                const colors = [0xff3366, 0xff1493, 0xff69b4, 0xffb6c1];
-                const material = new THREE.MeshStandardMaterial({ 
-                    color: colors[i % colors.length],
-                    roughness: 0.3,
-                    metalness: 0.1,
-                    side: THREE.DoubleSide
-                });
-                
-                const petal = new THREE.Mesh(geometry, material);
-                
-                // موقعیت مارپیچی
-                const spiral = i * 0.3;
-                petal.position.set(
-                    Math.cos(angle + spiral) * radius * (0.5 + i/petalCount),
-                    0.2,
-                    Math.sin(angle + spiral) * radius * (0.5 + i/petalCount)
-                );
-                
-                petal.rotation.y = angle + spiral;
-                petal.rotation.x = Math.PI / 6;
-                
-                // اندازه‌گیری
-                const scale = 0.3 + (i/petalCount) * 0.4;
-                petal.scale.set(scale, scale, scale);
-                
-                roseGroup.add(petal);
-            }
-            
-            // مرکز گل
-            const centerGeometry = new THREE.SphereGeometry(0.15, 16, 16);
-            const centerMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0xffd700,
-                emissive: 0x996600,
-                emissiveIntensity: 0.3
-            });
-            const center = new THREE.Mesh(centerGeometry, centerMaterial);
-            center.position.y = 0.5;
-            roseGroup.add(center);
-            
-            scene.add(roseGroup);
-            roseModel = roseGroup;
-        };
+        // آرایه جملات عاشقانه (365 جمله)
+        const loveQuotes = [
+            "عشق تو نفسم شده، زندگی منی.",
+            "در هر ثانیه به تو فکر می‌کنم.",
+            "چشمانت زیباترین ستاره‌های عالمند.",
+            "وجودت معنی زندگی من است.",
+            "عشق تو قوی‌ترین احساس من است.",
+            "برای تو هر روز خاص است.",
+            "با تو هر لحظه بهشت است.",
+            "عشق ما ابدی است.",
+            "تو تک‌ستاره آسمان زندگی منی.",
+            "دلم برای تو تنگ می‌شود حتی وقتی کنارم هستی.",
+            "عشق تو قلبم را آرام می‌کند.",
+            "هر روز بیشتر از دیروز دوستت دارم.",
+            "با تو زمان پرواز می‌کند.",
+            "وجودت زندگی من را روشن کرده.",
+            "عشق تو بهترین اتفاق زندگی من است.",
+            "چشمانت دنیای من را زیبا کرده.",
+            "برای تو تمام ستاره‌های آسمان را جمع می‌کنم.",
+            "عشق تو در قلبم جاودانه است.",
+            "هر ثانیه دوری از تو سخت است.",
+            "با تو به آرزوهایم رسیده‌ام.",
+            "دوستت دارم تا ابد.",
+            "عشق تو قوی‌تر از هر چیزی است.",
+            "تو بهترین هدیه خدا به من هستی.",
+            "زندگی بدون تو معنی ندارد.",
+            "عشق تو نعمتی بی‌نهایت است.",
+            "هر روز با تو زیباتر می‌شود.",
+            "چشمانت دریاهای آرامش من است.",
+            "عشق تو نیروی محرکه زندگی من است.",
+            "با تو رویاهایم رنگ واقعیت گرفته.",
+            "تو تمام وجود من را پر کرده‌ای.",
+            "دوستت دارم بی‌قید و شرط.",
+            "عشق تو همیشه در قلبم جاری است.",
+            "برای تو تمام دنیا را فدا می‌کنم.",
+            "با تو هر سختی آسان می‌شود.",
+            "تو دلیل خندیدن من هستی.",
+            "عشق تو شیرین‌ترین مزه زندگی است.",
+            "هر روز عاشق‌تر از دیروز می‌شوم.",
+            "چشمانت آینه روح زیبای توست.",
+            "عشق تو همیشه تازه است.",
+            "با تو زمان می‌ایستد.",
+            "تو قشنگترین خاطره زندگی منی.",
+            "عشق تو موسیقی قلب من است.",
+            "برای تو هر کاری می‌کنم.",
+            "با تو زندگی رنگ دیگری دارد.",
+            "تو بهترین اتفاق ممکن هستی.",
+            "عشق تو دریایی بی‌کران است.",
+            "هر روز در کنار تو رویایی است.",
+            "چشمانت پر از ستاره‌های درخشان است.",
+            "عشق تو همیشه در وجودم زنده است.",
+            "با تو به آرامش واقعی رسیده‌ام.",
+            // ۳۱۵ جمله دیگر...
+        ];
 
-        // ========== سیستم Three.js ==========
-        const initThreeJS = async () => {
-            try {
-                // صحنه
-                scene = new THREE.Scene();
-                scene.background = new THREE.Color(0x000000);
-                
-                // دوربین
-                const canvas = document.getElementById('canvas3d');
-                camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-                camera.position.set(0, 0, 5);
-                
-                // رندرر
-                renderer = new THREE.WebGLRenderer({ 
-                    canvas: canvas,
-                    antialias: true,
-                    alpha: true
-                });
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-                renderer.shadowMap.enabled = true;
-                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-                renderer.outputEncoding = THREE.sRGBEncoding;
-                
-                // نورپردازی
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-                scene.add(ambientLight);
-                
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-                directionalLight.position.set(10, 20, 15);
-                directionalLight.castShadow = true;
-                scene.add(directionalLight);
-                
-                // نور نقطه‌ای برای جلوه بیشتر
-                const pointLight = new THREE.PointLight(0xff3366, 0.5, 20);
-                pointLight.position.set(3, 5, 3);
-                scene.add(pointLight);
-                
-                // بارگذاری گل
-                await loadRoseModel();
-                
-                // OrbitControls
-                controls = new THREE.OrbitControls(camera, renderer.domElement);
-                controls.enableDamping = true;
-                controls.dampingFactor = 0.05;
-                controls.enableZoom = true;
-                controls.autoRotate = true;
-                controls.autoRotateSpeed = 0.5;
-                controls.enablePan = false;
-                controls.maxPolarAngle = Math.PI / 2;
-                controls.minDistance = 2;
-                controls.maxDistance = 10;
-                
-                // انیمیشن
-                const animate = () => {
-                    requestAnimationFrame(animate);
-                    
-                    if (roseModel) {
-                        // چرخش آرام گل
-                        roseModel.rotation.y += 0.002;
-                        
-                        // حرکت شناور
-                        const time = Date.now() * 0.001;
-                        roseModel.position.y = -1 + Math.sin(time) * 0.1;
-                    }
-                    
-                    controls.update();
-                    renderer.render(scene, camera);
-                };
-                
-                animate();
-                
-                // ریسایز
-                window.addEventListener('resize', () => {
-                    camera.aspect = window.innerWidth / window.innerHeight;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize(window.innerWidth, window.innerHeight);
-                });
-                
-                return true;
-            } catch (error) {
-                console.error('خطا در Three.js:', error);
-                return false;
-            }
-        };
+        // برای تست، همه جملات را پر می‌کنیم
+        for (let i = loveQuotes.length; i < 365; i++) {
+            loveQuotes[i] = `عشق تو روز ${i+1} هم زیباست...`;
+        }
 
-        // ========== سیستم سلامت ==========
-        const startHealthSystem = () => {
-            // بارگذاری از localStorage
-            const savedHealth = localStorage.getItem('rose_health');
-            const savedLastVisit = localStorage.getItem('rose_lastVisit');
-            const savedDay = localStorage.getItem('rose_currentDay');
+        // تابع دریافت جمله روز بر اساس تاریخ
+        function getDailyQuote() {
+            const now = new Date();
+            // روز سال (۱ تا ۳۶۵)
+            const start = new Date(now.getFullYear(), 0, 0);
+            const diff = now - start;
+            const oneDay = 1000 * 60 * 60 * 24;
+            const dayOfYear = Math.floor(diff / oneDay);
             
-            if (savedHealth) health = parseFloat(savedHealth);
-            if (savedLastVisit) lastVisit = parseInt(savedLastVisit);
-            if (savedDay) currentDay = parseInt(savedDay);
-            
-            updateHealthDisplay();
-            
-            // کاهش سلامت هر ساعت
-            setInterval(() => {
-                const hoursSinceLastVisit = (Date.now() - lastVisit) / (1000 * 60 * 60);
-                
-                if (hoursSinceLastVisit > 12) {
-                    health = Math.max(0, health - (hoursSinceLastVisit / 2));
-                    updateHealthDisplay();
-                    saveToStorage();
-                }
-            }, 3600000);
-        };
+            const quoteIndex = dayOfYear % loveQuotes.length;
+            return loveQuotes[quoteIndex];
+        }
 
-        const updateHealthDisplay = () => {
-            const healthFill = document.getElementById('healthFill');
-            const healthText = document.getElementById('healthText');
-            const visitInfo = document.getElementById('visitInfo');
-            const dayCounter = document.getElementById('dayCounter');
-            
-            if (healthFill) {
-                healthFill.style.width = `${health}%`;
-                
-                // رنگ سلامت
-                if (health > 70) {
-                    healthFill.style.background = 'linear-gradient(90deg, #00b894, #55efc4)';
-                } else if (health > 30) {
-                    healthFill.style.background = 'linear-gradient(90deg, #fdcb6e, #ffeaa7)';
-                } else {
-                    healthFill.style.background = 'linear-gradient(90deg, #ff7675, #fd79a8)';
-                }
-            }
-            
-            if (healthText) {
-                healthText.textContent = `سلامت: ${Math.round(health)}%`;
-            }
-            
-            if (visitInfo) {
-                const now = Date.now();
-                const diffMinutes = Math.floor((now - lastVisit) / (1000 * 60));
-                const diffHours = Math.floor(diffMinutes / 60);
-                
-                if (diffHours > 0) {
-                    visitInfo.textContent = `${diffHours} ساعت قبل`;
-                } else if (diffMinutes > 0) {
-                    visitInfo.textContent = `${diffMinutes} دقیقه قبل`;
-                } else {
-                    visitInfo.textContent = 'همین الان';
-                }
-            }
-            
-            if (dayCounter) {
-                dayCounter.textContent = `روز ${currentDay}`;
-            }
-        };
-
-        // ========== جملات روزانه ==========
-        const setupDailySentence = () => {
-            initializeSentences();
-            
-            // محاسبه روز بر اساس تاریخ
-            const startDate = localStorage.getItem('rose_startDate');
-            if (!startDate) {
-                localStorage.setItem('rose_startDate', new Date().toDateString());
-            }
-            
-            const start = new Date(startDate || new Date());
-            const today = new Date();
-            const diffTime = Math.abs(today - start);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            currentDay = diffDays;
-            currentSentenceIndex = diffDays % sentences.length;
-            
-            // نمایش جمله امروز
-            const sentenceText = document.getElementById('sentenceText');
-            const sentenceDate = document.getElementById('sentenceDate');
-            
-            if (sentenceText) {
-                sentenceText.textContent = `"${sentences[currentSentenceIndex]}"`;
-            }
-            
-            if (sentenceDate) {
-                const todayStr = today.toLocaleDateString('fa-IR');
-                sentenceDate.textContent = `${todayStr} • روز ${currentDay} از ۱۸۰`;
-            }
-            
-            // ذخیره
-            saveToStorage();
-        };
-
-        // ========== سرزدن به گل ==========
-        const setupRoseInteraction = () => {
-            const canvas = document.getElementById('canvas3d');
-            
-            canvas.addEventListener('click', (e) => {
-                // فقط اگر روی فضای خالی کلیک شده
-                if (e.target === canvas) {
-                    visitRose();
-                    createHeartEffect(e.clientX, e.clientY);
-                }
-            });
-        };
-
-        const visitRose = () => {
-            const now = Date.now();
-            const hoursSinceLastVisit = (now - lastVisit) / (1000 * 60 * 60);
-            
-            // افزایش روز
-            currentDay++;
-            
-            lastVisit = now;
-            health = Math.min(100, health + 20);
-            
-            // آپدیت نمایش
-            updateHealthDisplay();
-            
-            // ذخیره
-            saveToStorage();
-            
-            // افکت
-            showToast('گل شاداب شد! 💖', 'success');
-        };
-
-        // ========== موسیقی ==========
-        const setupMusic = () => {
-            const musicBtn = document.getElementById('musicBtn');
-            const bgMusic = document.getElementById('bgMusic');
-            
-            if (!musicBtn || !bgMusic) return;
-            
-            // تنظیمات اولیه
-            bgMusic.volume = 0.3;
-            
-            // اجازه پخش پس از تعامل کاربر
-            let userInteracted = false;
-            
-            const enablePlayback = () => {
-                if (!userInteracted) {
-                    userInteracted = true;
-                    console.log('✅ کاربر با صفحه تعامل کرد');
-                }
+        // تابع نمایش تاریخ شمسی
+        function getPersianDate() {
+            const now = new Date();
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                calendar: 'persian'
             };
-            
-            document.addEventListener('click', enablePlayback);
-            document.addEventListener('touchstart', enablePlayback);
-            
-            // رویداد کلیک
-            musicBtn.addEventListener('click', function() {
-                if (!userInteracted) {
-                    showToast('لطفاً اول روی صفحه کلیک کنید', 'info');
-                    return;
-                }
-                
-                if (isMusicPlaying) {
-                    bgMusic.pause();
-                    this.innerHTML = '<i class="fas fa-music"></i>';
-                    this.classList.remove('playing');
-                } else {
-                    bgMusic.play()
-                        .then(() => {
-                            this.innerHTML = '<i class="fas fa-pause"></i>';
-                            this.classList.add('playing');
-                            console.log('🎵 موسیقی پخش شد');
-                        })
-                        .catch(error => {
-                            console.log('خطای پخش:', error);
-                            showToast('برای پخش موسیقی، با صفحه تعامل کنید', 'info');
-                        });
-                }
-                isMusicPlaying = !isMusicPlaying;
-            });
-            
-            // وقتی موسیقی تمام شد
-            bgMusic.addEventListener('ended', () => {
-                bgMusic.currentTime = 0;
-                bgMusic.play();
-            });
-        };
+            return now.toLocaleDateString('fa-IR', options);
+        }
 
-        // ========== حالت شب/روز ==========
-        const setupTheme = () => {
-            const themeBtn = document.getElementById('themeBtn');
+        // تابع به‌روزرسانی آمار
+        function updateStats() {
+            document.getElementById('health').textContent = health + '%';
+            document.getElementById('lastVisit').textContent = lastVisit;
+            document.getElementById('streak').textContent = streak + ' روز';
+            document.getElementById('totalDays').textContent = totalDays + ' از ۱۸۰ روز';
             
-            if (!themeBtn) return;
+            // نمایش جمله روز
+            document.getElementById('dailyQuote').textContent = getDailyQuote();
+            document.getElementById('quoteDate').textContent = 'جمله امروز - ' + getPersianDate();
+        }
+
+        // تابع سر زدن به گل
+        function visitRose() {
+            const today = new Date().toLocaleDateString('fa-IR');
             
-            // بارگذاری حالت ذخیره شده
-            const savedTheme = localStorage.getItem('rose_theme');
-            if (savedTheme === 'day') {
-                isNightMode = false;
-                themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
-                document.body.style.background = '#f0f0f0';
-                if (scene) scene.background = new THREE.Color(0x87CEEB);
+            // اگر اولین سرزدن امروز است
+            if (lastVisitDate !== today) {
+                streak++;
+                totalDays++;
+                visitCountToday = 0;
+                lastVisitDate = today;
             }
             
-            // رویداد کلیک
-            themeBtn.addEventListener('click', function() {
-                isNightMode = !isNightMode;
-                
-                if (isNightMode) {
-                    this.innerHTML = '<i class="fas fa-moon"></i>';
-                    document.body.style.background = '#0a0a0a';
-                    if (scene) scene.background = new THREE.Color(0x000000);
-                } else {
-                    this.innerHTML = '<i class="fas fa-sun"></i>';
-                    document.body.style.background = '#f0f0f0';
-                    if (scene) scene.background = new THREE.Color(0x87CEEB);
-                }
-                
-                localStorage.setItem('rose_theme', isNightMode ? 'night' : 'day');
-            });
-        };
+            visitCountToday++;
+            health = Math.min(100, health + 5);
+            lastVisit = "همین الان";
+            
+            // افزایش تعداد روز متوالی
+            if (visitCountToday === 3) {
+                showAlert("هشدار! سطح لوس کردن من داره از حد مجاز می‌گذره!");
+            }
+            
+            updateStats();
+            
+            // افکت کلیک
+            const rose = document.getElementById('roseClick');
+            rose.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                rose.style.transform = 'scale(1)';
+            }, 300);
+            
+            // نمایش جمله ویژه سرزدن
+            const specialQuotes = [
+                "دستات گرم! گل امروز خیلی شادابه!",
+                "عشقم دمت گرم! گل داره میخندد!",
+                "چقدر بهم رسیدی امروز! دوسم داری ها؟",
+                "گل امروز عطرش بیشتر شده به خاطر تو!"
+            ];
+            const randomQuote = specialQuotes[Math.floor(Math.random() * specialQuotes.length)];
+            document.getElementById('dailyQuote').textContent = randomQuote;
+            document.getElementById('quoteDate').textContent = 'پیام ویژه سرزدن - ' + getPersianDate();
+        }
 
-        // ========== افکت‌ها ==========
-        const createHeartEffect = (x, y) => {
-            const heart = document.createElement('div');
-            heart.className = 'heart-effect';
-            heart.innerHTML = '❤️';
-            heart.style.left = `${x}px`;
-            heart.style.top = `${y}px`;
-            
-            document.body.appendChild(heart);
-            
-            setTimeout(() => heart.remove(), 2000);
-        };
-
-        const showToast = (message, type = 'info') => {
-            const existingToast = document.querySelector('.toast');
-            if (existingToast) existingToast.remove();
-            
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = message;
-            
-            toast.style.cssText = `
-                position: fixed;
-                top: 80px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: ${type === 'success' ? '#00b894' : '#ff3366'};
-                color: white;
-                padding: 15px 25px;
-                border-radius: 10px;
-                z-index: 1000;
-                font-family: inherit;
-                animation: slideDown 0.3s ease;
-            `;
-            
-            document.body.appendChild(toast);
+        // تابع نمایش هشدار
+        function showAlert(message) {
+            const alertBox = document.getElementById('alertBox');
+            const alertText = document.getElementById('alertText');
+            alertText.textContent = message;
+            alertBox.style.display = 'block';
             
             setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.style.opacity = '0';
-                    setTimeout(() => toast.remove(), 300);
-                }
-            }, 3000);
-        };
+                alertBox.style.display = 'none';
+            }, 5000);
+        }
 
-        // ========== ذخیره‌سازی ==========
-        const saveToStorage = () => {
-            localStorage.setItem('rose_health', health.toString());
-            localStorage.setItem('rose_lastVisit', lastVisit.toString());
-            localStorage.setItem('rose_currentDay', currentDay.toString());
-        };
+        // رویداد کلیک روی گل
+        document.getElementById('roseClick').addEventListener('click', visitRose);
 
-        // ========== راه‌اندازی برنامه ==========
-        const initApp = async () => {
-            console.log('🌸 شروع رز عاشقانه...');
-            
-            try {
-                // مخفی کردن لودینگ بعد از 3 ثانیه
-                setTimeout(() => {
-                    document.getElementById('loadingScreen').style.display = 'none';
-                    document.getElementById('uiContainer').style.display = 'block';
-                }, 3000);
-                
-                // شروع Three.js
-                const threeLoaded = await initThreeJS();
-                
-                if (!threeLoaded) {
-                    document.getElementById('loadingText').textContent = 
-                        'مشکل در بارگذاری گرافیک. لطفاً صفحه را رفرش کنید.';
-                    return;
-                }
-                
-                // راه‌اندازی سیستم‌ها
-                startHealthSystem();
-                setupDailySentence();
-                setupRoseInteraction();
-                setupMusic();
-                setupTheme();
-                
-                console.log('✅ برنامه آماده است!');
-                
-            } catch (error) {
-                console.error('خطا در راه‌اندازی:', error);
-                showToast('مشکلی پیش آمد. صفحه را رفرش کنید.', 'error');
+        // رویداد دکمه سر زدن
+        document.getElementById('visitBtn').addEventListener('click', visitRose);
+
+        // رویداد موسیقی
+        musicToggle.addEventListener('click', function() {
+            if (isMusicPlaying) {
+                bgMusic.pause();
+                musicToggle.classList.remove('active');
+                musicToggle.innerHTML = '<i class="fas fa-music"></i> موسیقی';
+            } else {
+                bgMusic.play().catch(e => {
+                    console.log("خطا در پخش موسیقی:", e);
+                    // اگر اتوپلی بلوک شده، راهنمای کاربر
+                    showAlert("برای پخش موسیقی، یکبار روی صفحه کلیک کنید");
+                });
+                musicToggle.classList.add('active');
+                musicToggle.innerHTML = '<i class="fas fa-pause"></i> موسیقی';
             }
-        };
+            isMusicPlaying = !isMusicPlaying;
+        });
 
-        // ========== شروع ==========
-        window.addEventListener('load', initApp);
+        // رویداد حالت شب/روز
+        themeToggle.addEventListener('click', function() {
+            if (isNightMode) {
+                body.classList.remove('night-mode');
+                body.classList.add('day-mode');
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i> حالت شب';
+            } else {
+                body.classList.remove('day-mode');
+                body.classList.add('night-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i> حالت روز';
+            }
+            isNightMode = !isNightMode;
+        });
+
+        // اجازه پخش موسیقی پس از کلیک کاربر
+        document.addEventListener('click', function() {
+            if (isMusicPlaying && bgMusic.paused) {
+                bgMusic.play();
+            }
+        }, { once: true });
+
+        // بارگذاری اولیه
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStats();
+            
+            // تنظیم خودکار حالت شب/روز بر اساس ساعت
+            const hour = new Date().getHours();
+            if (hour >= 18 || hour < 6) {
+                body.classList.remove('day-mode');
+                body.classList.add('night-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i> حالت روز';
+                isNightMode = true;
+            }
+            
+            // پخش خودکار موسیقی (با تاخیر)
+            setTimeout(() => {
+                bgMusic.volume = 0.3;
+                musicToggle.classList.add('active');
+                musicToggle.innerHTML = '<i class="fas fa-pause"></i> موسیقی';
+                isMusicPlaying = true;
+            }, 1000);
+        });
+
+        // ذخیره‌سازی داده‌ها در LocalStorage
+        function saveData() {
+            const data = {
+                health,
+                streak,
+                totalDays,
+                lastVisitDate,
+                visitCountToday
+            };
+            localStorage.setItem('roseLoveData', JSON.stringify(data));
+        }
+
+        // بارگذاری داده‌های ذخیره شده
+        function loadData() {
+            const saved = localStorage.getItem('roseLoveData');
+            if (saved) {
+                const data = JSON.parse(saved);
+                health = data.health || 100;
+                streak = data.streak || 10;
+                totalDays = data.totalDays || 180;
+                lastVisitDate = data.lastVisitDate || new Date().toLocaleDateString('fa-IR');
+                visitCountToday = data.visitCountToday || 0;
+            }
+        }
+
+        // بارگذاری داده‌ها
+        loadData();
+        updateStats();
+
+        // ذخیره‌سازی دوره‌ای
+        setInterval(saveData, 30000);
     </script>
 </body>
 </html>
