@@ -1,19 +1,32 @@
 <!DOCTYPE html>
-<html lang="fa">
+<html lang="fa" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <title>RoseLove</title>
-
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/night.css" id="nightStyle" disabled>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>loserove</title>
+    
+    <!-- Three.js از CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- GSAP برای انیمیشن‌های smoother (اختیاری اما توصیه شده) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+    
+    <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-  <div id="overlay">
-    <h1>🌹 RoseLove</h1>
-    <p id="moodText">در حال بیدار شدن گل...</p>
-  </div>
+    <!-- فقط محتوای اصلی کادوی دیجیتال -->
+    <div id="love-gift-container">
+        <!-- اینجا احتمالاً کانواس Three.js یا انیمیشن شما لود می‌شود -->
+        <canvas id="love-scene"></canvas>
+        
+        <div id="message" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(255,255,255,0.9); padding:20px; border-radius:10px;">
+            <h2>برای عشق من 💖</h2>
+            <p id="personal-message">...</p>
+            <button id="close-btn">بستن</button>
+        </div>
+    </div>
 
-  <script type="module" src="js/main.js"></script>
+    <!-- اسکریپت اصلی -->
+    <script src="js/script.js"></script>
 </body>
 </html>
