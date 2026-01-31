@@ -133,7 +133,8 @@ function createFallbackRose() {
   const mesh = new THREE.Mesh(geo, mat);
   scene.add(mesh);
   console.log("🌸 گل رز ساده ساخته شد (fallback)");
-};
+}
+
 
             (progress) => {
                 // نمایش پیشرفت بارگذاری
