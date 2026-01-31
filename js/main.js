@@ -4,9 +4,9 @@ import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/controls/OrbitControls.js";
 
 import { initScene } from "./scene.js";
-import { State } from "./state.js";
 
-initScene(THREE, GLTFLoader, RGBELoader, State);
+initScene(THREE, GLTFLoader, OrbitControls);
+
 
 
 import { getMood, Personality } from "./personality.js";
@@ -19,6 +19,7 @@ initUI(State, Personality[moodKey]);
 
 if (new Date().getHours() >= 22) 
   document.getElementById("nightStyle").disabled = false;
+
 
 
 
