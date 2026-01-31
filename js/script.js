@@ -111,37 +111,30 @@ async function initScene() {
 // بارگذاری مدل گل رز
 async function loadRoseModel() {
     return new Promise((resolve, reject) => {
-        const loader = new THREE.GLTFLoader();
-        
-        loader.load(
-            ROSE_MODEL_URL,
-            (gltf) => {
-                roseModel = gltf.scene;
-                
-                // تنظیمات مدل
-                roseModel.scale.set(0.5, 0.5, 0.5);
-                roseModel.position.set(0, -1, 0);
-                roseModel.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        
-                        // اگر گل رز اصلی پیدا شد، رنگش را قرمز کن
-                        if (child.name.toLowerCase().includes('rose') || 
-                            child.name.toLowerCase().includes('petal')) {
-                            child.material = new THREE.MeshStandardMaterial({
-                                color: 0xff3366,
-                                roughness: 0.3,
-                                metalness: 0.1
-                            });
-                        }
-                    }
-                });
-                
-                scene.add(roseModel);
-                console.log('🌸 مدل گل رز بارگذاری شد');
-                resolve();
-            },
+const loader = new GLTFLoader();
+
+loader.load(
+  "./models/rose.glb",
+  (gltf) => {
+    rose = gltf.scene;
+    scene.add(rose);
+    console.log("🌹 گل رز با موفقیت لود شد");
+  },
+  undefined,
+  (error) => {
+    console.error("❌ خطا در بارگذاری مدل:", error);
+    createFallbackRose();
+  }
+);
+
+function createFallbackRose() {
+  const geo = new THREE.SphereGeometry(0.8, 32, 32);
+  const mat = new THREE.MeshStandardMaterial({ color: 0xff3366 });
+  const mesh = new THREE.Mesh(geo, mat);
+  scene.add(mesh);
+  console.log("🌸 گل رز ساده ساخته شد (fallback)");
+}
+
             (progress) => {
                 // نمایش پیشرفت بارگذاری
                 const percent = (progress.loaded / progress.total * 100).toFixed(1);
