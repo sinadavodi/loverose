@@ -22,9 +22,13 @@ html,body{
   text-align:center;
   box-shadow:0 20px 50px rgba(0,0,0,0.1);
 }
-.volume-control {
-  margin-top:10px;
+.volume {
+  margin-top: 10px;
 }
+.volume input {
+  width: 120px;
+}
+
 
 /* متغیرهای حالت شب */
 :root {
@@ -446,4 +450,5 @@ body {
         width: auto;
     }
 }
+
 
