@@ -17,7 +17,7 @@ export function initScene(THREE, GLTFLoader, State, Personality) {
   let rose;
 
   const loader = new GLTFLoader();
-  loader.load("./models/rose.glb", (gltf) => {
+  loader.load("./models/scene.gltf", (gltf) => {
     rose = gltf.scene;
     rose.scale.set(1.5, 1.5, 1.5);
     scene.add(rose);
