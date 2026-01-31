@@ -18,7 +18,6 @@ function scheduleDailyReminder() {
   const now = new Date();
   const target = new Date();
 
-  // یادآوری ساعت 20:00
   target.setHours(20, 0, 0, 0);
 
   if (target <= now) {
@@ -44,5 +43,4 @@ function showNotification() {
   });
 }
 
-// اجرا
 initNotifications();
