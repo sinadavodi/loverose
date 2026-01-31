@@ -110,41 +110,31 @@ async function initScene() {
 
 // بارگذاری مدل گل رز
 async function loadRoseModel() {
-    return new Promise((resolve, reject) => {
-const loader = new GLTFLoader();
+    return new Promise((resolve) => {
+        const loader = new GLTFLoader();
 
-loader.load(
-  "./models/rose.glb",
-  (gltf) => {
-    rose = gltf.scene;
-    scene.add(rose);
-    console.log("🌹 گل رز با موفقیت لود شد");
-  },
-  undefined,
-  (error) => {
-    console.error("❌ خطا در بارگذاری مدل:", error);
-    createFallbackRose();
-  }
-);
+        loader.load(
+            "./models/rose.glb",
 
-function createFallbackRose() {
-  const geo = new THREE.SphereGeometry(0.8, 32, 32);
-  const mat = new THREE.MeshStandardMaterial({ color: 0xff3366 });
-  const mesh = new THREE.Mesh(geo, mat);
-  scene.add(mesh);
-  console.log("🌸 گل رز ساده ساخته شد (fallback)");
-}
-
+            (gltf) => {
+                roseModel = gltf.scene;
+                roseModel.scale.set(1.5, 1.5, 1.5);
+                scene.add(roseModel);
+                console.log("🌹 گل رز با موفقیت لود شد");
+                resolve();
+            },
 
             (progress) => {
-                // نمایش پیشرفت بارگذاری
-                const percent = (progress.loaded / progress.total * 100).toFixed(1);
-                document.querySelector('.loading-text').textContent = 
-                    `بارگذاری گل رز... ${percent}%`;
+                if (progress.total) {
+                    const percent =
+                        ((progress.loaded / progress.total) * 100).toFixed(0);
+                    const el = document.querySelector('.loading-text');
+                    if (el) el.textContent = `بارگذاری گل رز... ${percent}%`;
+                }
             },
+
             (error) => {
-                console.error('خطا در بارگذاری مدل:', error);
-                // اگر مدل لود نشد، یک گل رز ساده بساز
+                console.error("❌ خطا در بارگذاری مدل:", error);
                 createSimpleRose();
                 resolve();
             }
