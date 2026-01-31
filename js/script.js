@@ -11,7 +11,7 @@ let isMusicPlaying = false;
 let isNightMode = true;
 
 // گل رز از فایل GLB
-const ROSE_MODEL_URL = 'https://raw.githubusercontent.com/loverose/models/rose.glb';
+const ROSE_MODEL_URL = './models/rose.glb';
 
 // مقداردهی اولیه
 document.addEventListener('DOMContentLoaded', async () => {
@@ -114,7 +114,7 @@ async function loadRoseModel() {
         const loader = new GLTFLoader();
 
         loader.load(
-            ROSE_MODEL_URL,
+            "./models/rose.glb",
 
             (gltf) => {
                 roseModel = gltf.scene;
