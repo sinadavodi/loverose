@@ -95,6 +95,10 @@ const loveSentences = [
     "امروز کسی گفت چقدر خوشبختی... گفتم: آره، یه آفتابم که همیشه میسوزونم! 🌞",
     "من عاشق اینم که تو منو میشناسی انقدر که میدونی کدوم لوس‌کردنم واقعیه و کدوم شوخیه! (همشون واقعین! 😘)",
 ];
+function getTodayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
 
 /**
  * مدیر جملات پیشرفته با حالت‌های مختلف
@@ -143,29 +147,20 @@ class SentenceManager {
         return this.getDailySentence();
     }
 
-    // گرفتن جمله بر اساس حالت
-    getSentenceByMood() {
-        let filteredSentences;
-        
-        switch(this.mood) {
-            case 'romantic':
-                filteredSentences = this.sentences.filter(s => 
-                    s.includes('عشق') || s.includes('دلم') || s.includes('نیاز') || !s.includes('😂')
-                );
-                break;
-            case 'funny':
-                filteredSentences = this.sentences.filter(s => 
-                    s.includes('😂') || s.includes('😅') || s.includes('شوخی') || s.includes('خنده')
-                );
-                break;
-            case 'cheesy':
-                filteredSentences = this.sentences.filter(s => 
-                    s.includes('لوس') || s.includes('هشدار') || s.includes('دیوونه') || s.includes('😘')
-                );
-                break;
-            default:
-                filteredSentences = this.sentences;
-        }
+getSentenceByMood() {
+  let filteredSentences = this.sentences;
+
+  // فیلتر بر اساس مود (همون کدت، دست‌نخورده)
+
+  return {
+    text: filteredSentences[this.currentIndex],
+    day: this.currentIndex + 1,
+    totalDays: this.sentences.length,
+    mood: this.mood,
+    emoji: this.getMoodEmoji()
+  };
+}
+
 
         // اگر جملۀ فیلترشده نداریم، از همه استفاده کن
         if (filteredSentences.length === 0) {
@@ -194,25 +189,39 @@ class SentenceManager {
         }
     }
 
-    // جمله روزانه
-    getDailySentence() {
-        const today = new Date().toDateString();
-        const lastDate = localStorage.getItem('loverose_lastDate');
-        
-        // اگر روز جدید است
-        if (lastDate !== today) {
-            localStorage.setItem('loverose_lastDate', today);
-            
-            // هر ۳ روز یک بار حالت را تغییر بده
-            const daysDiff = Math.floor((Date.now() - this.lastMoodChange) / (1000 * 60 * 60 * 24));
-            if (daysDiff >= 3) {
-                const moods = ['romantic', 'funny', 'cheesy', 'normal'];
-                const randomMood = moods[Math.floor(Math.random() * moods.length)];
-                this.changeMood(randomMood);
-            }
-            
-            return this.getSentenceByMood();
-        }
+getDailySentence() {
+  const todayKey = getTodayKey();
+  const lastDate = localStorage.getItem('loverose_lastDate');
+
+  // اگر روز جدید است
+  if (lastDate !== todayKey) {
+    localStorage.setItem('loverose_lastDate', todayKey);
+
+    // هر ۳ روز یک بار مود عوض شود (بدون پرش جمله)
+    const daysDiff = Math.floor(
+      (Date.now() - this.lastMoodChange) / (1000 * 60 * 60 * 24)
+    );
+
+    if (daysDiff >= 3) {
+      const moods = ['romantic', 'funny', 'cheesy', 'normal'];
+      this.mood = moods[Math.floor(Math.random() * moods.length)];
+      this.lastMoodChange = Date.now();
+    }
+
+    // 👈 جمله امروز
+    const result = this.getSentenceByMood();
+
+    // 👈 index فقط برای فردا جلو می‌ره
+    this.currentIndex = (this.currentIndex + 1) % this.sentences.length;
+    this.saveProgress();
+
+    return result;
+  }
+
+  // همان جمله‌ی امروز
+  return this.getSentenceByMood();
+}
+
         
         // همان جمله روز را برگردان
         return {
