@@ -71,8 +71,8 @@ loader.load(
 
   // ✅ onLoad
   (gltf) => {
-    rose = gltf.scene;
-    rose.scale.set(1.5, 1.5, 1.5);
+    roseModel = gltf.scene;
+    roseModel.scale.set(1.5, 1.5, 1.5);
 
     rose.traverse((o) => {
       if (o.isMesh) {
@@ -87,7 +87,7 @@ loader.load(
       }
     });
 
-    scene.add(rose);
+    scene.add(roseModel);
     console.log('🌹 Rose loaded successfully');
   },
 
