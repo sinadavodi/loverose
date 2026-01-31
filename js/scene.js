@@ -1,124 +1,50 @@
-export function initScene(THREE, GLTFLoader, RGBELoader, State) {
+export function initScene(THREE, GLTFLoader, OrbitControls) {
 
-  // ---------- Renderer ----------
-  const renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    alpha: true,
-    physicallyCorrectLights: true
-  });
-
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-  document.body.appendChild(renderer.domElement);
-
-  // ---------- Scene ----------
   const scene = new THREE.Scene();
 
-  // ---------- Camera ----------
   const camera = new THREE.PerspectiveCamera(
-    35,
+    45,
     window.innerWidth / window.innerHeight,
     0.1,
     100
   );
-  camera.position.set(0, 1.4, 4);
+  camera.position.set(0, 1.5, 4);
 
-  // ---------- HDR Environment ----------
-  new RGBELoader()
-    .setPath('./hdr/')
-    .load('back.hdr', (hdr) => {
-      hdr.mapping = THREE.EquirectangularReflectionMapping;
-      scene.environment = hdr;
-      scene.background = null;
-    });
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
 
-  // ---------- Lights (Cinematic Setup) ----------
-  const keyLight = new THREE.DirectionalLight(0xffffff, 3.5);
-  keyLight.position.set(3, 4, 2);
-  keyLight.castShadow = true;
-  scene.add(keyLight);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
-  const fillLight = new THREE.DirectionalLight(0xffc0d9, 1.5);
-  fillLight.position.set(-3, 2, 2);
-  scene.add(fillLight);
+  const light = new THREE.DirectionalLight(0xffffff, 1.2);
+  light.position.set(2, 5, 3);
+  scene.add(light);
 
-  const rimLight = new THREE.DirectionalLight(0xff4d88, 2.0);
-  rimLight.position.set(0, 3, -4);
-  scene.add(rimLight);
+  const controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
 
-  // ---------- Ground (Contact Shadow) ----------
-  const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(20, 20),
-    new THREE.ShadowMaterial({ opacity: 0.35 })
+  const loader = new GLTFLoader();
+  loader.load(
+    "./models/rose.glb",
+    (gltf) => {
+      scene.add(gltf.scene);
+      document.getElementById("status").innerText = "🌹 رز آماده‌ست";
+    },
+    undefined,
+    (err) => {
+      console.error("❌ خطا در بارگذاری مدل:", err);
+    }
   );
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -0.01;
-  ground.receiveShadow = true;
-  scene.add(ground);
 
- // ---------- Load Rose ----------
-let rose;
-const loader = new GLTFLoader();
-
-loader.load(
-  './models/rose.glb',
-
-  // ✅ onLoad
-  (gltf) => {
-    roseModel = gltf.scene;
-    roseModel.scale.set(1.5, 1.5, 1.5);
-
-    rose.traverse((o) => {
-      if (o.isMesh) {
-        o.castShadow = true;
-        o.receiveShadow = true;
-
-        // اطمینان از اینکه متریال PBR هست
-        if (o.material) {
-          o.material.envMapIntensity = 1.5;
-          o.material.needsUpdate = true;
-        }
-      }
-    });
-
-    scene.add(roseModel);
-    console.log('🌹 Rose loaded successfully');
-  },
-
-  // 🔄 onProgress (اختیاری)
-  (xhr) => {
-    if (xhr.total) {
-      const percent = (xhr.loaded / xhr.total) * 100;
-      console.log(`⏳ Loading rose: ${percent.toFixed(0)}%`);
-    }
-  },
-
-  // ❌ onError (خیلی مهم)
-  (error) => {
-    console.error('❌ Error loading rose model:', error);
-  }
-);
-
-
-  // ---------- Animate ----------
-  function animate(time) {
+  function animate() {
     requestAnimationFrame(animate);
-
-    if (rose) {
-      rose.rotation.y += 0.002;
-      rose.position.y = Math.sin(time * 0.001) * 0.04;
-    }
-
+    controls.update();
     renderer.render(scene, camera);
   }
 
   animate();
+}
+
 
   // ---------- Resize ----------
   window.addEventListener('resize', () => {
