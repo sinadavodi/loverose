@@ -7,6 +7,7 @@ import { initScene } from "./scene.js";
 
 initScene(THREE, GLTFLoader, OrbitControls);
 
+import { State } from "./state.js";
 
 
 import { getMood, Personality } from "./personality.js";
@@ -19,6 +20,7 @@ initUI(State, Personality[moodKey]);
 
 if (new Date().getHours() >= 22) 
   document.getElementById("nightStyle").disabled = false;
+
 
 
 
