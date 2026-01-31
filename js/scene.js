@@ -62,21 +62,49 @@ export function initScene(THREE, GLTFLoader, RGBELoader, State) {
   ground.receiveShadow = true;
   scene.add(ground);
 
-  // ---------- Load Rose ----------
-  let rose;
-  new GLTFLoader().load('./models/rose.glb', (gltf) => {
+ // ---------- Load Rose ----------
+let rose;
+const loader = new GLTFLoader();
+
+loader.load(
+  './models/rose.glb',
+
+  // ✅ onLoad
+  (gltf) => {
     rose = gltf.scene;
     rose.scale.set(1.5, 1.5, 1.5);
 
     rose.traverse((o) => {
       if (o.isMesh) {
         o.castShadow = true;
-        o.material.envMapIntensity = 1.5;
+        o.receiveShadow = true;
+
+        // اطمینان از اینکه متریال PBR هست
+        if (o.material) {
+          o.material.envMapIntensity = 1.5;
+          o.material.needsUpdate = true;
+        }
       }
     });
 
     scene.add(rose);
-  });
+    console.log('🌹 Rose loaded successfully');
+  },
+
+  // 🔄 onProgress (اختیاری)
+  (xhr) => {
+    if (xhr.total) {
+      const percent = (xhr.loaded / xhr.total) * 100;
+      console.log(`⏳ Loading rose: ${percent.toFixed(0)}%`);
+    }
+  },
+
+  // ❌ onError (خیلی مهم)
+  (error) => {
+    console.error('❌ Error loading rose model:', error);
+  }
+);
+
 
   // ---------- Animate ----------
   function animate(time) {
