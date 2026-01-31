@@ -114,7 +114,7 @@ async function loadRoseModel() {
         const loader = new GLTFLoader();
 
         loader.load(
-            "loverose/models/rose.glb",
+            ROSE_MODEL_URL,
 
             (gltf) => {
                 roseModel = gltf.scene;
