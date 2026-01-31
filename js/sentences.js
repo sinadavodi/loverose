@@ -302,3 +302,4 @@ console.log("   sentenceManager.changeMood('romantic')");
 console.log("   sentenceManager.changeMood('funny')");
 console.log("   sentenceManager.changeMood('cheesy')");
 console.log("   sentenceManager.getRandomSentence()");
+window.sentenceManager = sentenceManager;
