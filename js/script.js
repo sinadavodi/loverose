@@ -11,7 +11,7 @@ let isMusicPlaying = false;
 let isNightMode = true;
 
 // گل رز از فایل GLB
-const ROSE_MODEL_URL = 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/models/gltf/Rose.glb';
+const ROSE_MODEL_URL = 'https://raw.githubusercontent.com/loverose/models/Rose.glb';
 
 // مقداردهی اولیه
 document.addEventListener('DOMContentLoaded', async () => {
