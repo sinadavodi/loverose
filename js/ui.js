@@ -1,6 +1,6 @@
 import { Personality } from "./personality.js";
 import { State } from "./state.js";
-import { quotes } from "./quotes.js";
+import { quotes } from "./sentences.js";
 export function initUI(State, Personality) {
   const quoteText = document.getElementById("quoteText");
 
