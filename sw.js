@@ -4,7 +4,7 @@ const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/css/style.css',
-  '/js/script.js',
+  '/js/main.js',
   '/js/sentences.js',
   '/js/notification.js',
   '/assets/music/romantic.mp3',
