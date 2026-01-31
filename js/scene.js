@@ -1,53 +1,101 @@
-export function initScene(THREE, GLTFLoader, State, Personality) {
-  const scene = new THREE.Scene();
+export function initScene(THREE, GLTFLoader, RGBELoader, State) {
 
-  const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 100);
-  camera.position.set(0, 1.4, 4);
-
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(innerWidth, innerHeight);
-  document.body.appendChild(renderer.domElement);
-
-  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-
-  const light = new THREE.DirectionalLight(0xffffff, 1.4);
-  light.position.set(2, 4, 3);
-  scene.add(light);
-
-  let rose;
-
-  const loader = new GLTFLoader();
-  loader.load("./models/scene.gltf", (gltf) => {
-    rose = gltf.scene;
-    rose.scale.set(1.5, 1.5, 1.5);
-    scene.add(rose);
-    State.awake = true;
+  // ---------- Renderer ----------
+  const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true,
+    physicallyCorrectLights: true
   });
 
-  function applyWilt() {
-    if (!rose) return;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    Personality.update(State);
+  document.body.appendChild(renderer.domElement);
 
-    if (Personality.mood === "happy") {
-      rose.rotation.z *= 0.98;
-    }
+  // ---------- Scene ----------
+  const scene = new THREE.Scene();
 
-    if (Personality.mood === "sad") {
-      rose.rotation.z = -0.15;
-    }
+  // ---------- Camera ----------
+  const camera = new THREE.PerspectiveCamera(
+    35,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    100
+  );
+  camera.position.set(0, 1.4, 4);
 
-    if (Personality.mood === "wilted") {
-      rose.rotation.z = -0.35;
-      rose.position.y = -0.2;
-    }
-  }
+  // ---------- HDR Environment ----------
+  new RGBELoader()
+    .setPath('./hdr/')
+    .load('back.hdr', (hdr) => {
+      hdr.mapping = THREE.EquirectangularReflectionMapping;
+      scene.environment = hdr;
+      scene.background = null;
+    });
 
-  function animate() {
+  // ---------- Lights (Cinematic Setup) ----------
+  const keyLight = new THREE.DirectionalLight(0xffffff, 3.5);
+  keyLight.position.set(3, 4, 2);
+  keyLight.castShadow = true;
+  scene.add(keyLight);
+
+  const fillLight = new THREE.DirectionalLight(0xffc0d9, 1.5);
+  fillLight.position.set(-3, 2, 2);
+  scene.add(fillLight);
+
+  const rimLight = new THREE.DirectionalLight(0xff4d88, 2.0);
+  rimLight.position.set(0, 3, -4);
+  scene.add(rimLight);
+
+  // ---------- Ground (Contact Shadow) ----------
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(20, 20),
+    new THREE.ShadowMaterial({ opacity: 0.35 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.01;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // ---------- Load Rose ----------
+  let rose;
+  new GLTFLoader().load('./models/rose.glb', (gltf) => {
+    rose = gltf.scene;
+    rose.scale.set(1.5, 1.5, 1.5);
+
+    rose.traverse((o) => {
+      if (o.isMesh) {
+        o.castShadow = true;
+        o.material.envMapIntensity = 1.5;
+      }
+    });
+
+    scene.add(rose);
+  });
+
+  // ---------- Animate ----------
+  function animate(time) {
     requestAnimationFrame(animate);
-    applyWilt();
+
+    if (rose) {
+      rose.rotation.y += 0.002;
+      rose.position.y = Math.sin(time * 0.001) * 0.04;
+    }
+
     renderer.render(scene, camera);
   }
 
   animate();
+
+  // ---------- Resize ----------
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
 }
