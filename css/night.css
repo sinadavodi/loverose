@@ -1,7 +1,7 @@
 body {
-  background: radial-gradient(#050505, #000);
+  background: radial-gradient(circle, #0d0d1a, #000);
 }
-
 #overlay {
-  color: #b89cff;
+  background:rgba(30,10,40,0.9);
+  color:#ffeaff;
 }
