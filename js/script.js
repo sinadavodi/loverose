@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 gsap.to('#mainContainer', { opacity: 1, duration: 1 });
                 
                 // نمایش جمله روز
-                showDailySentence();
+                showDaily();
                 
                 // شروع موسیقی (اختیاری)
                 setTimeout(() => {
@@ -373,7 +373,8 @@ function updateLastVisitDisplay() {
 
 // نمایش جمله روز
 function showDailySentence() {
-    const sentenceData = sentenceManager.getDailySentence();
+    const sentenceData = import { sentenceManager } from "./sentences.js";
+
     
     const sentenceText = document.getElementById('sentenceText');
     const sentenceDate = document.getElementById('sentenceDate');
