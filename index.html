@@ -2,9 +2,42 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1a1a2e">
-    <title>رز عاشقانه </title>
+   <title>🌹 Love Rose</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: radial-gradient(circle, #140014, #000);
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ff7aa2;
+      font-size: 1.2rem;
+      z-index: 10;
+      background: radial-gradient(circle, #1b001b, #000);
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+<body>
+
+  <div id="loading">🌹 رز عشق در حال شکفتن است…</div>
+  <canvas id="roseCanvas"></canvas>
+
+  <!-- فقط و فقط یک entry -->
+  <script type="module" src="js/main.js"></script>
     <!-- آیکون‌ها -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -107,9 +140,11 @@
     <script src="js/ui.js"></script>
     <script src="js/state.js"></script>
     <script src="js/personality.js"></script>
-        
+    </div>
+</head>
 </body>
 </html>
+
 
 
 
