@@ -371,26 +371,29 @@ function updateLastVisitDisplay() {
     }
 }
 
-// نمایش جمله روز
 function showDailySentence() {
-    const sentenceData = import { sentenceManager } from "./sentences.js";
+    if (typeof window.sentenceManager === 'undefined') {
+        console.error('sentenceManager لود نشده');
+        return;
+    }
 
-    
+    const sentenceData = window.sentenceManager.getDailySentence();
+
     const sentenceText = document.getElementById('sentenceText');
     const sentenceDate = document.getElementById('sentenceDate');
-    
+
     if (sentenceText) {
         sentenceText.textContent = `"${sentenceData.text}"`;
-        
-        // انیمیشن ظاهر شدن
+
         gsap.fromTo(sentenceText,
             { opacity: 0, y: 20 },
             { opacity: 1, y: 0, duration: 1, ease: "power2.out" }
         );
     }
-    
+
     if (sentenceDate) {
-        sentenceDate.textContent = `روز ${sentenceData.day} از ${sentenceData.totalDays}`;
+        sentenceDate.textContent =
+            `روز ${sentenceData.day} از ${sentenceData.totalDays}`;
     }
 }
 
