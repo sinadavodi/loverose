@@ -1,11 +1,20 @@
 import { Personality } from "./personality.js";
 import { State } from "./state.js";
+import { quotes } from "./quotes.js";
+export function initUI(State, Personality) {
+  const quoteText = document.getElementById("quoteText");
 
-document.getElementById("moodText").innerText = Personality.text;
-document.getElementById("days").innerText =
-  `❤️ روز با هم: ${State.daysTogether}`;
+  const today = new Date().toDateString();
+  let selected = localStorage.lastDisplay;
 
-let hour = new Date().getHours();
-if(hour >= 22 || hour < 6){
-  document.getElementById("nightStyle").disabled = false;
+  if (selected !== today) {
+    localStorage.lastDisplay = today;
+    quoteText.innerText =
+      quotes[Math.floor(Math.random()*quotes.length)];
+  } else {
+    quoteText.innerText = quoteText.innerText;
+  }
+
+  document.getElementById("moodText").innerText =
+    `روزهای با هم: ${State.daysTogether}`;
 }
