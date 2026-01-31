@@ -111,7 +111,7 @@ async function initScene() {
 // بارگذاری مدل گل رز
 async function loadRoseModel() {
     return new Promise((resolve) => {
-        const loader = new GLTFLoader();
+        const loader = new THREE.GLTFLoader();
 
         loader.load(
             "./models/rose.glb",
